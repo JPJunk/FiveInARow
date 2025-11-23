@@ -11,6 +11,10 @@ Work in progress
 
 ***
 
+https://en.wikipedia.org/wiki/Deep_reinforcement_learning
+
+***
+
 Gomoku (also called Five in a Row) is a two‑player abstract strategy game where the goal is to be the first to align five stones in a row—horizontally, vertically, or diagonally—on a grid board. Black always plays first, players alternate turns, and once placed, stones cannot be moved or removed.
 
 🔹 Core Rules of Gomoku
