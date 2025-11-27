@@ -5,6 +5,7 @@ import numpy as np
 from Utils import GameResult, BLACK, WHITE
 from Gomoku import Gomoku
 
+# NOT TESTED YET
 class PureMCTSNode:
     def __init__(self, parent=None, action_from_parent=None):
         self.parent = parent

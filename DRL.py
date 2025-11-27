@@ -14,7 +14,7 @@ from PolicyAndValueNets import PolicyNet, ValueNet
 from ReplayBuffer import ReplayBuffer
 
 import os
-os.chdir(r"C:\Users\XXX\Documents\PythonProjects\Gomoku") # Change to project directory
+os.chdir(r"C:\Users\...\Documents\PythonProjects\Gomoku DRL")
 
 # -----------------------------
 # DRL Agent (PyTorch)
@@ -228,12 +228,12 @@ class DRL:
         }
         print(f"[Train] Game {self.game_counter} stats: {stats}")
 
-        timestamp = datetime.now().isoformat(timespec="seconds")
-        with open("train_after_game.txt", "a") as f:
-            f.write(f"Game {self.game_counter} [{timestamp}]: "
-                    f"policy_loss={stats['policy_loss']:.4f}, "
-                    f"value_loss={stats['value_loss']:.4f}, "
-                    f"total_loss={stats['total_loss']:.4f}\n")
+        # timestamp = datetime.now().isoformat(timespec="seconds")
+        # with open("train_after_game.txt", "a") as f:
+        #     f.write(f"Game {self.game_counter} [{timestamp}]: "
+        #             f"policy_loss={stats['policy_loss']:.4f}, "
+        #             f"value_loss={stats['value_loss']:.4f}, "
+        #             f"total_loss={stats['total_loss']:.4f}\n")
 
         return stats
     
@@ -287,12 +287,12 @@ class DRL:
         }
         print(f"[Train] Game {self.game_counter} stats: {stats}")
 
-        timestamp = datetime.now().isoformat(timespec="seconds")
-        with open("train_after_game.txt", "a") as f:
-            f.write(f"Game {self.game_counter} [{timestamp}]: "
-                    f"policy_loss={stats['policy_loss']:.4f}, "
-                    f"value_loss={stats['value_loss']:.4f}, "
-                    f"total_loss={stats['total_loss']:.4f}\n")
+        # timestamp = datetime.now().isoformat(timespec="seconds")
+        # with open("train_after_game.txt", "a") as f:
+        #     f.write(f"Game {self.game_counter} [{timestamp}]: "
+        #             f"policy_loss={stats['policy_loss']:.4f}, "
+        #             f"value_loss={stats['value_loss']:.4f}, "
+        #             f"total_loss={stats['total_loss']:.4f}\n")
 
         return stats
 

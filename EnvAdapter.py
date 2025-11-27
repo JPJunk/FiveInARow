@@ -1,5 +1,7 @@
 import MCTS
 
+# NOT READY YET
+
 class EnvAdapter:
     def __init__(self, env_cls, base_env=None):
         self.env = base_env or env_cls()

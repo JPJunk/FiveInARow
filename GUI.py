@@ -5,7 +5,7 @@ from Utils import GameResult, BLACK, WHITE, coord_to_index
 from Gomoku import Gomoku
 
 import os
-os.chdir(r"C:\Users\XXX\Documents\PythonProjects\Gomoku") # Change to project directory
+os.chdir(r"C:\Users\...\Documents\PythonProjects\Gomoku DRL")
 
 # -----------------------------
 # GUI

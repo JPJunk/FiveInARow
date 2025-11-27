@@ -110,7 +110,7 @@ def main():
     agent = DRL()
 
     # Evaluation harness and scheduler (ensure these modules are available)
-    try:
+    try: # TODO: Missing parameter, takes time, needs better match setup
         eval_harness = evaluation.EvalHarness(
             env_cls=Gomoku,                # pass class, not instance
             policy_net=agent.policy.eval(),
@@ -126,18 +126,36 @@ def main():
         scheduler = None
 
     # Load previous agent state (method already handles exceptions)
-    AgentPersistence.load(agent, "gomoku_agent.pth")
+    AgentPersistence.load(agent, "gomoku_agent_10.pth")
 
     test_value_net_outputs(agent.value, board_size=15, num_samples=10, device=agent.device)
     test_policy_net_outputs(agent.policy, board_size=15, device=agent.device)
 
     # Mode selection
-    print("Choose mode:\n1) Player vs NN\n2) NN vs NN")
-    choice = input("Enter 1 or 2: ").strip()
-    mode = "pve" if choice == "1" else "eve"
+    print("Choose mode:")
+    print("1) Player vs NN")
+    print("2) NN vs NN")
+    print("3) Player vs MCTS")
+    print("4) NN (deterministic) vs MCTS")
+    print("5) Player vs policy_net only")
+    print("6) Player vs value_net only")
+
+    choice = input("Enter number: ").strip()
+    modes = {
+        "1": "pve",
+        "2": "eve",
+        "3": "pvmcts",
+        "4": "nn_vs_mcts",
+        "5": "pve_policy",
+        "6": "pve_value",
+    }
+    mode = modes.get(choice, "eve")
 
     # MCTS toggle
-    use_mcts = input("Use MCTS for NN moves? (y/n): ").strip().lower() == "y"
+    if mode in ("pve", "eve"):
+        use_mcts = input("Use MCTS for NN moves? (y/n): ").strip().lower() == "y"
+    else:
+        use_mcts = (mode in ("pvmcts", "nn_vs_mcts"))
 
     # Player color selection
     human_is_black = True
@@ -155,7 +173,7 @@ def main():
     results = {GameResult.BLACK_WIN: 0, GameResult.WHITE_WIN: 0, GameResult.DRAW: 0}
 
     # Create GUI if needed
-    gui = GomokuGUI(env) if mode == "pve" else None
+    gui = GomokuGUI(env) if mode in ("pve", "pvmcts", "pve_policy", "pve_value") else None
 
     # Game loop
     for g in range(1, num_games + 1):
@@ -166,7 +184,9 @@ def main():
             human_is_black=human_is_black,
             use_mcts=use_mcts,
             gui=gui,
+            deterministic_vs_human=True
         )
+
         results[res] += 1
 
         # Log
@@ -184,7 +204,7 @@ def main():
         print(f"[Log] {log_line}")
 
         # Auto-save after each game
-        AgentPersistence.save(agent, "gomoku_agent.pth")
+        AgentPersistence.save(agent, "gomoku_agent_10.pth")
 
         # Optional scheduler promote step (if set up)
         if scheduler:
@@ -210,149 +230,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-# """
-# Gomoku DRL Skeleton (PyTorch)
-# - Environment: Gomoku (15x15, two players, first to get exactly five in a row wins)
-# - Agent: DRL with policy/value network stubs, experience replay
-# - GUI: Optional stub (tkinter/pygame), non-functional scaffolding
-# - Main: Player vs NN, NN vs NN. Training (backprop) after each game.
-
-# Notes:
-# - This is a scaffold intended for incremental implementation.
-# - Fill TODO sections with proper logic and training code.
-# """
-
-# from datetime import datetime
-
-# import evaluation, level_test
-
-# from Gomoku import Gomoku
-# from GUI import GomokuGUI
-# from DRL import DRL
-# from MCTS import MCTS
-# from Utils import GameResult, stages
-# from AgentPersistence import AgentPersistence
-# from PlayGame import play_game
-
-# import os
-# os.chdir(r"C:\Users\jpjun\Documents\PythonProjects\Gomoku DRL")
-
-# # -----------------------------
-# # Main game loop
-# # -----------------------------
-
-# def main():
-#     """
-#     Main entry point.
-#     - Choose mode: Player vs NN (pve) or NN vs NN (eve)
-#     - Player can choose to be Black or White
-#     - User can toggle MCTS for NN moves
-#     - Backpropagation is done after each game
-#     - Results are tracked and summarized
-#     - Agent state is loaded at startup and saved after each game
-#     - GUI is used for Player vs NN mode
-#     """
-#     env = Gomoku()
-#     agent = DRL()
-
-#     # -----------------------------
-#     # imports
-#     # -----------------------------
-#     eval_harness = evaluation.EvalHarness(env_cls=env, policy_net=agent.policy, value_net=agent.value, mcts_cls=MCTS, board_size=15)
-#     scheduler = level_test.LevelTestScheduler(agent, eval_harness, stages, eval_every_games=1)
-#     scheduler.current_idx = 0  # start at first stage
-
-
-#     # Try to load previous agent state
-#     try:
-#         AgentPersistence.load(agent, "gomoku_agent.pth")
-#         print("[Persistence] Loaded existing agent state.")
-#     except Exception:
-#         print("[Persistence] No saved agent found, starting fresh.")
-
-#     # Mode selection
-#     print("Choose mode:")
-#     print("1) Player vs NN")
-#     print("2) NN vs NN")
-#     choice = input("Enter 1 or 2: ").strip()
-#     mode = "pve" if choice == "1" else "eve"
-
-#     # MCTS toggle
-#     use_mcts = input("Use MCTS for NN moves? (y/n): ").strip().lower() == "y"
-
-#     # Player color selection
-#     human_is_black = True
-#     if mode == "pve":
-#         side = input("Play as Black(X) or White(O)? Enter B/W: ").strip().upper()
-#         human_is_black = (side == "B")
-
-#     # Number of games
-#     num_games = 5
-#     try:
-#         num_games = int(input("How many games to play? (default 5): ").strip())
-#     except Exception:
-#         pass
-
-#     # Results tracking
-#     results = {GameResult.BLACK_WIN: 0, GameResult.WHITE_WIN: 0, GameResult.DRAW: 0}
-
-#     # Create GUI if needed
-#     gui = GomokuGUI(env) if mode == "pve" else None
-
-#     # Game loop
-#     for g in range(1, num_games + 1):
-#         print(f"\n=== Game {g} ===")
-#         res, stats = play_game(env, agent,
-#                         mode=mode,
-#                         human_is_black=human_is_black,
-#                         use_mcts=use_mcts,
-#                         gui=gui)
-#         results[res] += 1
-
-#         # Append to log file
-#         timestamp = datetime.now().isoformat(timespec="seconds")
-#         agent.game_counter = getattr(agent, "game_counter", 0) + 1
-
-#         log_line = f"Game {agent.game_counter} [{timestamp}]: result={res.name}"
-#         log_line += (f", policy_loss={stats.get('policy_loss', 0):.4f}, "
-#                     f"value_loss={stats.get('value_loss', 0):.4f}, "
-#                     f"total_loss={stats.get('total_loss', 0):.4f}")
-
-#         with open("training_log.txt", "a") as f:
-#             f.write(log_line + "\n")
-
-#         print(f"[Log] {log_line}")
-
-#         # Auto-save after each game
-#         try:
-#             AgentPersistence.save(agent, "gomoku_agent.pth")
-#             print(f"[Persistence] Agent state saved after game {g}.")
-#         except Exception as e:
-#             print(f"[Persistence] Failed to save agent after game {g}: {e}")
-
-#         # after each game and training step:
-#         # promoted = scheduler.maybe_eval_and_promote()
-#         # if promoted:
-#         #     # Step completed, agent promoted to next stage
-#         #     print(f"[Scheduler] Agent promoted to next training stage: {scheduler.current_stage.name}")
-#         #     log_line = f"Game {agent.game_counter} [{timestamp}]: PROMOTED to stage {scheduler.current_stage.name}"
-#         #     with open("training_log.txt", "a") as f:
-#         #         f.write(log_line + "\n")
-
-#         #     print(f"[Log] {log_line}")
-#         #     # Stop further training for now
-#         #     break
-
-#     # Summary
-#     print("\nSummary:")
-#     for k, v in results.items():
-#         print(f"{k.name}: {v}")
-
-#     if use_mcts:
-#         print("\nAlphaZero-style training was applied using MCTS visit counts.")
-#     else:
-#         print("\nClassic DRL replay buffer training was applied.")
-
-# if __name__ == "__main__":
-#     main()

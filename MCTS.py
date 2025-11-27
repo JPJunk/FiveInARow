@@ -12,7 +12,7 @@ from Utils import GameResult, BLACK, WHITE, BOARD_SIZE, DEVICE
 from Gomoku import Gomoku
 
 import os
-os.chdir(r"C:\Users\XXX\Documents\PythonProjects\Gomoku") # Change to project directory
+os.chdir(r"C:\Users\...\Documents\PythonProjects\Gomoku DRL")
 
 # -----------------------------
 # MCTS Node
@@ -105,7 +105,7 @@ class MCTS:
             # legal = env.get_valid_moves()
             # legal_int = [int(a) for a in legal]
 
-            legal_int = self._focused_legal(env, radius=3)
+            legal_int = self._focused_legal(env, radius=2) # for learning defence # original radius=5
             
             # # Progressive widening cap THIS SELECTS FROM THE TOP OF THE BOARD, CAN'T USE
             # M = 24 + int(2.0 * math.sqrt(sum(node.N.get(a,0) for a in legal_int)))
@@ -161,7 +161,7 @@ class MCTS:
         """
         # legal = env.get_valid_moves()
         # legal_int = [int(a) for a in legal]
-        legal_int = self._focused_legal(env, radius=3)
+        legal_int = self._focused_legal(env, radius=2) # for learning defence # original radius=5
 
         # # Progressive widening cap
         # M = 24 + int(2.0 * math.sqrt(sum(node.N.get(a,0) for a in legal_int)))
@@ -243,7 +243,7 @@ class MCTS:
 
         root = MCTSNode(parent=None)
 
-        legal_int = self._focused_legal(root_env, radius=3)
+        legal_int = self._focused_legal(root_env, radius=2) # for learning defence # original radius=5
 
         state_t = self.encode_state(root_env.board, root_env.current_player)
         with torch.no_grad():
@@ -345,156 +345,6 @@ class MCTS:
 
         return root, pi
 
-    # # ---- Simulation loop ----
-    # def run(self, root_env: Gomoku, add_root_noise: bool = True) -> Tuple[MCTSNode, np.ndarray]:
-    #     """
-    #     Run MCTS simulations starting from root_env state.
-    #     Returns:
-    #     - root node
-    #     - policy target pi: visit-count distribution over actions (shape [BOARD_SIZE*BOARD_SIZE])
-    #     """
-    #     root = MCTSNode(parent=None)
-
-    #     # --- Initial expansion with NN priors (masked to legal moves) ---
-    #     # legal = root_env.get_valid_moves()
-    #     # legal_int = [int(a) for a in legal]
-
-    #     legal_int = self._focused_legal(root_env, radius=5)
-
-    #     # # Progressive widening cap
-    #     # M = 24 + int(2.0 * math.sqrt(sum(root.N.get(a,0) for a in legal_int)))
-    #     # if len(legal_int) > M:
-    #     #     # pick top-M by prior P
-    #     #     legal_int = sorted(legal_int, key=lambda a: root.P.get(a, 0.0), reverse=True)[:M]
-
-    #     state_t = self.encode_state(root_env.board, root_env.current_player)
-    #     with torch.no_grad():
-    #         root_logits = self.policy_net(state_t)                 # [1, BOARD_SIZE*BOARD_SIZE]
-    #         priors_all = F.softmax(root_logits, dim=-1).squeeze(0) # probabilities over all actions
-
-    #     priors_np = priors_all.detach().cpu().numpy()
-    #     masked_priors = np.zeros_like(priors_np, dtype=np.float32)
-    #     if len(legal_int) > 0:
-    #         masked_priors[legal_int] = priors_np[legal_int]
-    #         s = masked_priors.sum()
-    #         if s > 0:
-    #             masked_priors /= s
-    #         else:
-    #             masked_priors[legal_int] = 1.0 / len(legal_int)
-
-    #     # Initialize root stats (P, N, W, Q) using masked priors
-    #     root.current_player = root_env.current_player
-    #     for a in legal_int:
-    #         root.P[a] = float(masked_priors[a])
-    #         root.N[a] = 0
-    #         root.W[a] = 0.0
-    #         root.Q[a] = 0.0
-    #     root.is_expanded = True
-
-    #     # Add Dirichlet noise to encourage exploration (only on legal moves)
-    #     if add_root_noise and len(legal_int) > 0:
-    #         root.add_dirichlet_noise(alpha=self.dirichlet_alpha, epsilon=self.dirichlet_eps)
-
-    #     # --- Run simulations ---
-    #     for _ in range(self.sims_per_move):
-    #         # Copy environment to roll forward
-    #         sim_env = self._clone_env(root_env)
-
-    #         # SELECT
-    #         path, leaf, leaf_env, parent_action = self._select(root, sim_env)
-
-    #         if leaf_env.check_result() != GameResult.ONGOING:
-    #             v_terminal = self._terminal_value(leaf_env, leaf.current_player)
-    #             self._backup_path(path, v_terminal, leaf_env.current_player, path[0][0].current_player if path else root.current_player)
-    #             continue
-
-    #         child = self._expand_and_evaluate(leaf, leaf_env, parent_action)
-    #         v_eval = child.value_eval if child else leaf.value_eval
-    #         self._backup_path(path, v_eval, leaf_env.current_player, path[0][0].current_player if path else root.current_player)
-
-    #         # child = self._expand_and_evaluate(leaf, leaf_env, parent_action)
-    #         # v_eval = child.value_eval if child and hasattr(child, "value_eval") else leaf.value_eval
-    #         # self._backup_path(path, v_eval, leaf_env.current_player, path[0][0].current_player if path else root.current_player)
-
-    #         # leaf, leaf_env, parent_action = self._select(root, sim_env)
-    #         # # TERMINAL?
-    #         # if leaf_env.check_result() != GameResult.ONGOING:
-    #         #     # Terminal leaf: backup terminal value (+1/-1/0) from leaf.current_player perspective
-    #         #     v_terminal = self._terminal_value(leaf_env, leaf.current_player)
-    #         #     if parent_action != -1:
-    #         #         a = int(parent_action)
-    #         #         leaf.N[a] = leaf.N.get(a, 0) + 1
-    #         #         leaf.W[a] = leaf.W.get(a, 0.0) + v_terminal
-    #         #         leaf.Q[a] = leaf.W[a] / max(leaf.N[a], 1)
-    #         #     continue
-
-    #         # # EXPAND + EVAL
-    #         # self._expand_and_evaluate(leaf, leaf_env, parent_action)
-        
-    #     board_size = BOARD_SIZE  # or pass it in if not available here            
-        
-    #     # If you want to also log the selected move after sampling:
-    #     top_k = sorted(((a, root.N.get(a, 0)) for a in legal_int),
-    #     key=lambda kv: kv[1], reverse=True)[:5]
-    #     print("[PlayGame] Top 5 root actions:")
-    #     for a, n in top_k:
-    #         r, c = divmod(a, board_size)
-    #         q_val = root.Q.get(a, 0.0)
-    #         print(f"  ({r},{c}) -> action={a}, N={n}, Q={q_val:.4f}")
-    #     r_sel, c_sel = divmod(parent_action, board_size)
-    #     print(f"[MCTS] Selected move: ({r_sel},{c_sel}) -> action={parent_action}")
-
-    #     # --- Build policy target from root visit counts (temperature applied) ---
-    #     pi = np.zeros(BOARD_SIZE * BOARD_SIZE, dtype=np.float32)
-    #     total_visits = sum(root.N.get(a, 0) for a in legal_int)
-
-    #     if total_visits == 0:
-    #         # Fallback to priors if no visits (e.g., very low sims_per_move)
-    #         for a in legal_int:
-    #             pi[a] = root.P.get(a, 0.0)
-    #     else:
-    #         temp = max(self.temperature, 1e-6)
-    #         for a in legal_int:
-    #             pi[a] = (root.N.get(a, 0) ** (1.0 / temp))
-
-    #     # Normalize strictly over legal moves
-    #     s = pi[legal_int].sum()
-    #     if s > 0:
-    #         pi[legal_int] /= s
-    #     else:
-    #         # Uniform over legal moves if still degenerate
-    #         if len(legal_int) > 0:
-    #             pi[legal_int] = 1.0 / len(legal_int)
-
-    #     # --- Logging for analysis ---
-    #     if len(legal_int) > 0:
-    #         visited_actions = [a for a in legal_int if root.N.get(a, 0) > 0]
-    #         if len(visited_actions) > 0:
-    #             avg_q = float(np.mean([root.Q[a] for a in visited_actions]))
-    #         else:
-    #             avg_q = 0.0
-    #         # print(f"[MCTS] Average Q at root: {avg_q:.4f}")
-    #         # self.average_q_at_root = avg_q
-
-    #         # # Top 1 by visit count
-    #         # top = sorted(((a, root.N.get(a, 0)) for a in legal_int), key=lambda kv: kv[1], reverse=True)[:1]
-    #         # print("[MCTS] Top 1 root action:", ", ".join(f"{a}: N={n}, Q={root.Q.get(a, 0.0):.4f}" for a, n in top))
-
-    #         print(f"[MCTS] Average Q at root: {avg_q:.4f}")
-    #         self.average_q_at_root = avg_q
-
-    #         # Top 1 by visit count
-    #         top = sorted(((a, root.N.get(a, 0)) for a in legal_int),
-    #                     key=lambda kv: kv[1], reverse=True)[:1]
-
-    #         print("[MCTS] Top 1 root action:")
-    #         for a, n in top:
-    #             r, c = divmod(a, board_size)
-    #             q_val = root.Q.get(a, 0.0)
-    #             print(f"  ({r},{c}) -> action={a}, N={n}, Q={q_val:.4f}")
-
-    #     return root, pi
-
     # ---- Utilities ----
     def _clone_env(self, env: Gomoku) -> Gomoku:
         """Create a deep copy of the environment state."""
@@ -517,6 +367,7 @@ class MCTS:
         return 1.0 if winner == reference_player else -1.0
     
 
+#   UNUSED FUNCTIONS
 # -----------------------------
 # Self-play with MCTS (collect training data)
 # -----------------------------

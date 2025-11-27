@@ -1,10 +1,6 @@
 import torch.nn as nn
 import torch.nn.functional as F
 
-# for m in self.modules():
-#     if isinstance(m, nn.Conv2d) or isinstance(m, nn.Linear):
-#         nn.init.kaiming_normal_(m.weight, nonlinearity='relu')
-
 # -----------------------------
 # Residual block
 # -----------------------------

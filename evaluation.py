@@ -1,6 +1,8 @@
 import random
 from collections import Counter
 
+# NOT USED, NEEDS BETTER MATCH SETUP FROM MAIN.PY
+
 class EvalHarness:
     def __init__(self, env_cls, policy_net, value_net, mcts_cls, board_size=15):
         self.env_cls = env_cls

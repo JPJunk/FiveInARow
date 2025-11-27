@@ -2,9 +2,7 @@ import torch
 import numpy as np
 from dataclasses import replace
 
-# def rotate_board(board: np.ndarray, k: int) -> np.ndarray:
-#     """Rotate board by 90° * k (k in {1,2,3})."""
-#     return np.rot90(board, k=k, axes=(1, 2))  # assume shape [C,H,W], rotate HxW
+# NOT USED YET, WOULD SPEED THINGS UP
 
 def rotate_board(board: np.ndarray, k: int) -> np.ndarray:
     """Rotate board by 90° * k (k in {1,2,3})."""
@@ -82,24 +80,3 @@ def flip_ud_lr_transition(t, board_size):
     t_ud = flip_ud_transition(t, board_size)
     t_ud_lr = flip_lr_transition(t_ud, board_size)
     return t_ud_lr
-
-# import torch
-# from dataclasses import replace
-
-# def flip_ud_transition(t, board_size: int):
-#     """Flip transition vertically (up/down)."""
-#     state_flip = torch.flip(t.state, dims=[1])  # flip rows
-#     next_state_flip = torch.flip(t.next_state, dims=[1]) if t.next_state is not None else None
-#     r, c = divmod(t.action, board_size)
-#     r2, c2 = board_size - 1 - r, c
-#     action_flip = r2 * board_size + c2
-#     return replace(t, state=state_flip, next_state=next_state_flip, action=action_flip)
-
-# def flip_lr_transition(t, board_size: int):
-    """Flip transition horizontally (left/right)."""
-    state_flip = torch.flip(t.state, dims=[2])  # flip columns
-    next_state_flip = torch.flip(t.next_state, dims=[2]) if t.next_state is not None else None
-    r, c = divmod(t.action, board_size)
-    r2, c2 = r, board_size - 1 - c
-    action_flip = r2 * board_size + c2
-    return replace(t, state=state_flip, next_state=next_state_flip, action=action_flip)

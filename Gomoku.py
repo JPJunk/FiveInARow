@@ -7,7 +7,7 @@ from typing import List, Optional, Tuple
 from Utils import GameResult, BOARD_SIZE, WIN_LENGTH, BLACK, WHITE, coord_to_index, index_to_coord
 
 import os
-os.chdir(r"C:\Users\XXX\Documents\PythonProjects\Gomoku") # Change to project directory
+os.chdir(r"C:\Users\...\Documents\PythonProjects\Gomoku DRL")
 
 # -----------------------------
 # Gomoku environment
@@ -203,6 +203,7 @@ class Gomoku:
                         rr += dr; cc += dc
         return None, []
 
+# UNUSED FUNCTIONS FOR INTERFACE CONSISTENCY
     def is_terminal(self) -> bool:
         """Return True if the game has ended."""
         return self.check_result() != GameResult.ONGOING

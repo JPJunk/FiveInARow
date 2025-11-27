@@ -10,7 +10,9 @@ from Gomoku import Gomoku
 from EnvAdapter import EnvAdapter
 
 import os
-os.chdir(r"C:\Users\XXX\Documents\PythonProjects\Gomoku") # Change to project directory
+os.chdir(r"C:\Users\...\Documents\PythonProjects\Gomoku DRL")
+
+# NOT READY YET
 
 # -----------------------------
 # Backwards MCTS

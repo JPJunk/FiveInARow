@@ -1,13 +1,36 @@
+Work in progress
+
 Execute python .\Main.py to run.
 
 Choose mode:
 1) Player vs NN
 2) NN vs NN
-Enter 1 or 2: 2
+3) Player vs MCTS
+4) NN (deterministic) vs MCTS
+5) Player vs policy_net only
+6) Player vs value_net only
+Enter number: 2
 Use MCTS for NN moves? (y/n): y
-How many games to play? (default 5): 30
+How many games to play? (default 5): 40
 
-Work in progress
+***
+
+4,524 AgentPersistence.py
+9,437 BackwardsMCTS.py - NOT USED YET
+16,054 DRL.py
+1,337 EnvAdapter.py - NOT USED YET
+2,623 evaluation.py - NOT USED YET
+9,653 Gomoku.py
+5,604 GUI.py
+2,492 level_test.py - NOT USED YET
+8,323 Main.py
+20,082 MCTS.py
+11,602 PlayGame.py
+4,820 PolicyAndValueNets.py
+8,537 PureMCTS.py - NOT TESTED
+5,239 ReplayBuffer.py
+3,281 symmetry_utils.py - NOT USED YET
+2,981 Utils.py
 
 ***
 
